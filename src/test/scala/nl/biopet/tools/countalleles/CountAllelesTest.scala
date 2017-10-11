@@ -7,7 +7,7 @@ object CountAllelesTest extends BiopetTest {
   @Test
   def testNoArgs(): Unit = {
     intercept[IllegalArgumentException] {
-      ToolTemplate.main(Array())
+      CountAlleles.main(Array())
     }
   }
 }
