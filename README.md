@@ -1,20 +1,14 @@
-TODO:
-- Update this file
-- Update docs/manual.md
-- Update index.rst
-- Update docs/installation.md
-- Make sure all links are correct
-
-#  < TOOL NAME >
+#  CountAlleles
 This tool is part of BIOPET tool suite that is developed at LUMC by [the SASC team](http://sasc.lumc.nl/). 
 Each tool in the BIOPET tool suite is meant to offer a standalone function that can be used to perform a
 dedicate data analysis task or added as part of [BIOPET pipelines](http://biopet-docs.readthedocs.io/en/latest/).
 
 #  About this tool
-<Description of a tool>
+CountAlleles counts the number of alleles in a VCF file. It uses a BAM file to ensure the alleles have
+a minimum quality.
 
 #  Documentation
-For documentation and manuals visit the [readthedocs page](http://biopet-toolName.readthedocs.io/en/latest/).
+For documentation and manuals visit the [readthedocs page](http://biopet-countalleles.readthedocs.io/en/latest/).
 
 
 #  Contact
