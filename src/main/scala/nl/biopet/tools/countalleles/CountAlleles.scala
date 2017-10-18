@@ -4,7 +4,7 @@ import htsjdk.samtools.{SAMReadGroupRecord, SAMRecord, SamReader}
 import htsjdk.variant.variantcontext.writer.{AsyncVariantContextWriter, VariantContextWriterBuilder}
 import htsjdk.variant.variantcontext._
 import htsjdk.variant.vcf._
-import nl.biopet.utils.ngs.{BamUtils, FastaUtils}
+import nl.biopet.utils.ngs.{bam, fasta}
 import nl.biopet.utils.tool.ToolCommand
 
 import scala.collection.mutable
@@ -21,12 +21,12 @@ object CountAlleles extends ToolCommand {
 
     logger.info("Start")
 
-    val dict = FastaUtils.getCachedDict(cmdArgs.referenceFasta)
+    val dict = fasta.getCachedDict(cmdArgs.referenceFasta)
 
     logger.info(cmdArgs.bamFiles.size + " bamfiles found")
 
-    val bamReaders = BamUtils.sampleBamReaderMap(cmdArgs.bamFiles)
-    val sampleReadergroup = BamUtils.sampleReadGroups(bamReaders)
+    val bamReaders = bam.sampleBamReaderMap(cmdArgs.bamFiles)
+    val sampleReadergroup = bam.sampleReadGroups(bamReaders)
 
     logger.info(s"Samples found: ${sampleReadergroup.size}")
     logger.info(s"Readgroups found: ${sampleReadergroup.map(_._2.size).sum}")
