@@ -4,10 +4,10 @@ import java.io.File
 
 import htsjdk.samtools.SamReaderFactory
 import htsjdk.variant.vcf.VCFFileReader
-import nl.biopet.test.BiopetTest
+import nl.biopet.utils.test.tools.ToolTest
 import org.testng.annotations.Test
 
-class CountAllelesTest extends BiopetTest {
+class CountAllelesTest extends ToolTest[Args] {
 
   val vcf: String = resourcePath("/chrQ.vcf")
   val bam: String = resourcePath("/single01.bam")

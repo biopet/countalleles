@@ -13,7 +13,7 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 import scala.collection.JavaConversions._
 
-object CountAlleles extends ToolCommand {
+object CountAlleles extends ToolCommand[Args] {
   def main(args: Array[String]): Unit = {
     val parser = new ArgsParser(toolName)
     val cmdArgs =
