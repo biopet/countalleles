@@ -8,6 +8,7 @@ import nl.biopet.utils.test.tools.ToolTest
 import org.testng.annotations.Test
 
 class CountAllelesTest extends ToolTest[Args] {
+  def toolCommand: CountAlleles.type = CountAlleles
 
   val vcf: String = resourcePath("/chrQ.vcf")
   val bam: String = resourcePath("/single01.bam")
