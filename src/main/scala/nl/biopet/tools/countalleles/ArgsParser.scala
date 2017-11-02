@@ -9,10 +9,10 @@ import scala.io.Source
 class ArgsParser(cmdName: String) extends AbstractOptParser[Args](cmdName) {
   opt[File]('I', "inputFile") required () maxOccurs 1 valueName "<file>" action { (x, c) =>
     c.copy(inputFile = x)
-  } text "VCF file"
+  } text "input VCF filename"
   opt[File]('o', "outputFile") required () maxOccurs 1 valueName "<file>" action { (x, c) =>
     c.copy(outputFile = x)
-  } text "output VCF file name"
+  } text "output VCF filename"
   opt[File]('b', "bam") unbounded () action { (x, c) =>
     c.copy(bamFiles = x :: c.bamFiles)
   } text "bam file, from which the variants (VCF files) were called"
