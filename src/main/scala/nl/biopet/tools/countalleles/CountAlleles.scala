@@ -1,7 +1,10 @@
 package nl.biopet.tools.countalleles
 
 import htsjdk.samtools.{SAMReadGroupRecord, SAMRecord, SamReader}
-import htsjdk.variant.variantcontext.writer.{AsyncVariantContextWriter, VariantContextWriterBuilder}
+import htsjdk.variant.variantcontext.writer.{
+  AsyncVariantContextWriter,
+  VariantContextWriterBuilder
+}
 import htsjdk.variant.variantcontext._
 import htsjdk.variant.vcf._
 import nl.biopet.utils.ngs.{bam, fasta}
@@ -40,29 +43,36 @@ object CountAlleles extends ToolCommand[Args] {
 
     val headerLines: Set[VCFHeaderLine] = Set(
       new VCFFormatHeaderLine("GT",
-        VCFHeaderLineCount.R,
-        VCFHeaderLineType.String,
-        "Genotype of position"),
-      new VCFFormatHeaderLine("AD",
+                              VCFHeaderLineCount.R,
+                              VCFHeaderLineType.String,
+                              "Genotype of position"),
+      new VCFFormatHeaderLine(
+        "AD",
         VCFHeaderLineCount.R,
         VCFHeaderLineType.Integer,
         "Allele depth, ref and alt on order of vcf file"),
-      new VCFFormatHeaderLine("DP", 1, VCFHeaderLineType.Integer, "Depth of position")
+      new VCFFormatHeaderLine("DP",
+                              1,
+                              VCFHeaderLineType.Integer,
+                              "Depth of position")
     )
     val sampleNames =
       (if (cmdArgs.outputReadgroups)
-        sampleReadergroup
-          .flatMap(x => x._1 :: x._2.map(rg => rg.getSample + "-" + rg.getReadGroupId))
-          .toList
-      else sampleReadergroup.keys.toList).sorted
+         sampleReadergroup
+           .flatMap(x =>
+             x._1 :: x._2.map(rg => rg.getSample + "-" + rg.getReadGroupId))
+           .toList
+       else sampleReadergroup.keys.toList).sorted
 
     val header = new VCFHeader(headerLines, sampleNames)
     header.setSequenceDictionary(dict)
     writer.writeHeader(header)
 
     val it = for (vcfRecord <- reader.iterator().buffered) yield {
-      val countReports = bamReaders.map(x =>
-        x._1 -> Future(countAlleles(vcfRecord, x._2._1, sampleReadergroup(x._1))))
+      val countReports = bamReaders.map(
+        x =>
+          x._1 -> Future(
+            countAlleles(vcfRecord, x._2._1, sampleReadergroup(x._1))))
 
       val builder = new VariantContextBuilder()
         .chr(vcfRecord.getContig)
@@ -72,10 +82,15 @@ object CountAlleles extends ToolCommand[Args] {
       val genotypes = for ((sampleName, countsFuture) <- countReports) yield {
         val counts = Await.result(countsFuture, Duration.Inf)
         val sampleGenotype =
-          counts.values.fold(AlleleCounts())(_ + _).toGenotype(sampleName, vcfRecord)
+          counts.values
+            .fold(AlleleCounts())(_ + _)
+            .toGenotype(sampleName, vcfRecord)
         if (cmdArgs.outputReadgroups)
           sampleGenotype :: counts
-            .map(x => x._2.toGenotype(x._1.getSample + "-" + x._1.getReadGroupId, vcfRecord))
+            .map(
+              x =>
+                x._2.toGenotype(x._1.getSample + "-" + x._1.getReadGroupId,
+                                vcfRecord))
             .toList
         else List(sampleGenotype)
       }
@@ -95,10 +110,12 @@ object CountAlleles extends ToolCommand[Args] {
     logger.info("Done")
   }
 
-  protected case class AlleleCounts(count: Map[Allele, Int] = Map(), dp: Int = 0) {
+  protected case class AlleleCounts(count: Map[Allele, Int] = Map(),
+                                    dp: Int = 0) {
     def +(other: AlleleCounts): AlleleCounts = {
       val alleles = this.count.keySet ++ other.count.keySet
-      val map = alleles.map(a => a -> (this.count.getOrElse(a, 0) + other.count.getOrElse(a, 0)))
+      val map = alleles.map(a =>
+        a -> (this.count.getOrElse(a, 0) + other.count.getOrElse(a, 0)))
       AlleleCounts(map.toMap, other.dp + this.dp)
     }
 
@@ -113,7 +130,8 @@ object CountAlleles extends ToolCommand[Args] {
           else {
             val leftOver = f.filter(_._2 != firstAllele)
             val maxF2 = (0.0 :: leftOver.map(_._1)).max
-            val secondAllele = leftOver.find(_._1 == maxF2).map(_._2).getOrElse(Allele.NO_CALL)
+            val secondAllele =
+              leftOver.find(_._1 == maxF2).map(_._2).getOrElse(Allele.NO_CALL)
             List(firstAllele, secondAllele)
           }
         }
@@ -127,7 +145,8 @@ object CountAlleles extends ToolCommand[Args] {
 
   def countAlleles(vcfRecord: VariantContext,
                    samReader: SamReader,
-                   readGroups: List[SAMReadGroupRecord]): Map[SAMReadGroupRecord, AlleleCounts] = {
+                   readGroups: List[SAMReadGroupRecord])
+    : Map[SAMReadGroupRecord, AlleleCounts] = {
     val map = samReader
       .query(vcfRecord.getContig, vcfRecord.getStart, vcfRecord.getEnd, false)
       .toList
@@ -143,10 +162,13 @@ object CountAlleles extends ToolCommand[Args] {
     readGroups.map(rg => rg -> map.getOrElse(rg, AlleleCounts())).toMap
   }
 
-  def checkAlleles(samRecord: SAMRecord, vcfRecord: VariantContext): Option[String] = {
+  def checkAlleles(samRecord: SAMRecord,
+                   vcfRecord: VariantContext): Option[String] = {
     val readStartPos = List
       .range(0, samRecord.getReadBases.length)
-      .find(x => samRecord.getReferencePositionAtReadPosition(x + 1) == vcfRecord.getStart) getOrElse {
+      .find(x =>
+        samRecord
+          .getReferencePositionAtReadPosition(x + 1) == vcfRecord.getStart) getOrElse {
       return None
     }
     val readBases = samRecord.getReadBases
@@ -154,31 +176,37 @@ object CountAlleles extends ToolCommand[Args] {
     val refAllele = alleles.head
     var maxSize = 1
     for (allele <- alleles if allele.length > maxSize) maxSize = allele.length
-    val readC = for (t <- readStartPos until readStartPos + maxSize if t < readBases.length)
+    val readC = for (t <- readStartPos until readStartPos + maxSize
+                     if t < readBases.length)
       yield readBases(t).toChar
-    val allelesInRead = mutable.Set(alleles.filter(readC.mkString.startsWith): _*)
+    val allelesInRead =
+      mutable.Set(alleles.filter(readC.mkString.startsWith): _*)
 
     // Removal of insertions that are not really in the cigarstring
     for (allele <- allelesInRead if allele.length > refAllele.length) {
       val refPos = for (t <- refAllele.length until allele.length)
-        yield samRecord.getReferencePositionAtReadPosition(readStartPos + t + 1)
+        yield
+          samRecord.getReferencePositionAtReadPosition(readStartPos + t + 1)
       if (refPos.exists(_ > 0)) allelesInRead -= allele
     }
 
     // Removal of alleles that are not really in the cigarstring
     for (allele <- allelesInRead) {
       val readPosAfterAllele =
-        samRecord.getReferencePositionAtReadPosition(readStartPos + allele.length + 1)
+        samRecord.getReferencePositionAtReadPosition(
+          readStartPos + allele.length + 1)
       val vcfPosAfterAllele = vcfRecord.getStart + refAllele.length
       if (readPosAfterAllele != vcfPosAfterAllele &&
-        (refAllele.length != allele.length || (refAllele.length == allele.length && readPosAfterAllele < 0)))
+          (refAllele.length != allele.length || (refAllele.length == allele.length && readPosAfterAllele < 0)))
         allelesInRead -= allele
     }
 
     for (allele <- allelesInRead if allele.length >= refAllele.length) {
-      if (allelesInRead.exists(_.length > allele.length)) allelesInRead -= allele
+      if (allelesInRead.exists(_.length > allele.length))
+        allelesInRead -= allele
     }
-    if (allelesInRead.contains(refAllele) && allelesInRead.exists(_.length < refAllele.length))
+    if (allelesInRead.contains(refAllele) && allelesInRead.exists(
+          _.length < refAllele.length))
       allelesInRead -= refAllele
     if (allelesInRead.isEmpty) None
     else if (allelesInRead.size == 1) Some(allelesInRead.head)
@@ -186,7 +214,8 @@ object CountAlleles extends ToolCommand[Args] {
       logger.warn("vcfRecord: " + vcfRecord)
       logger.warn("samRecord: " + samRecord.getSAMString)
       logger.warn("Found multiple options: " + allelesInRead.toString)
-      logger.warn("ReadStartPos: " + readStartPos + "  Read Length: " + samRecord.getReadLength)
+      logger.warn(
+        "ReadStartPos: " + readStartPos + "  Read Length: " + samRecord.getReadLength)
       logger.warn("Read skipped, please report this")
       None
     }
