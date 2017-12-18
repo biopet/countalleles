@@ -2,7 +2,7 @@ package nl.biopet.tools.countalleles
 
 import java.io.File
 
-import nl.biopet.utils.tool.AbstractOptParser
+import nl.biopet.utils.tool.{AbstractOptParser, ToolCommand}
 
 import scala.io.Source
 
