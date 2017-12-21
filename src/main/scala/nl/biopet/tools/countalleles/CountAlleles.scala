@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2016 Sequencing Analysis Support Core - Leiden University Medical Center
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package nl.biopet.tools.countalleles
 
 import htsjdk.samtools.{SAMReadGroupRecord, SAMRecord, SamReader}
@@ -18,7 +39,7 @@ import scala.collection.JavaConversions._
 
 object CountAlleles extends ToolCommand[Args] {
   def emptyArgs: Args = Args()
-  def argsParser = new ArgsParser(toolName)
+  def argsParser = new ArgsParser(this)
   def main(args: Array[String]): Unit = {
     val cmdArgs = cmdArrayToArgs(args)
 
@@ -221,4 +242,41 @@ object CountAlleles extends ToolCommand[Args] {
     }
   }
 
+  def descriptionText: String =
+    """
+      |This tool will count the alleles in multiple bam files.
+      |It's posible to count alleles for each separated readgroup. This can be used for quality checks.
+    """.stripMargin
+
+  def manualText: String =
+    """
+      |This tool require that in the bam files the readgroups are setup correctly to detect the sample and readgroup names.
+      |The input and output vcf file can be compressed, this is auto detected by the file extension.
+      |
+      |Readgroup calling is optional and can be enabled with `--outputReadgroups`.
+    """.stripMargin
+
+  def exampleText: String =
+    s"""
+      |Default run with 1 bam file:
+      |${example("-R",
+                 "<reference_fasta>",
+                 "-I",
+                 "<input_vcf>",
+                 "-o",
+                 "<output_vcf>",
+                 "-b",
+                 "<input_bam>")}
+      |
+      |Run with readgroups:
+      |${example("-R",
+                 "<reference_fasta>",
+                 "-I",
+                 "<input_vcf>",
+                 "-o",
+                 "<output_vcf>",
+                 "-b",
+                 "<input_bam>",
+                 "--outputReadgroups")}
+    """.stripMargin
 }
