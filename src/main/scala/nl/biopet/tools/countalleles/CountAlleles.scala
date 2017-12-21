@@ -221,4 +221,26 @@ object CountAlleles extends ToolCommand[Args] {
     }
   }
 
+  def descriptionText: String =
+    """
+      |This tool will count the alleles in multiple bam files.
+      |It's posible to count alleles for each separated readgroup. This can be used for quality checks.
+    """.stripMargin
+
+  def manualText: String =
+    """
+      |This tool require that in the bam files the readgroups are setup correctly to detect the sample and readgroup names.
+      |The input and output vcf file can be compressed, this is auto detected by the file extension.
+      |
+      |Readgroup calling is optional and can be enabled with `--outputReadgroups`.
+    """.stripMargin
+
+  def exampleText: String =
+    s"""
+      |Default run with 1 bam file:
+      |${example("-R", "<reference_fasta>", "-I", "<input_vcf>", "-o", "<output_vcf>", "-b", "<input_bam>")}
+      |
+      |Run with readgroups:
+      |${example("-R", "<reference_fasta>", "-I", "<input_vcf>", "-o", "<output_vcf>", "-b", "<input_bam>", "--outputReadgroups")}
+    """.stripMargin
 }
