@@ -67,11 +67,10 @@ object CountAlleles extends ToolCommand[Args] {
                               VCFHeaderLineCount.R,
                               VCFHeaderLineType.String,
                               "Genotype of position"),
-      new VCFFormatHeaderLine(
-        "AD",
-        VCFHeaderLineCount.R,
-        VCFHeaderLineType.Integer,
-        "Allele depth, ref and alt on order of vcf file"),
+      new VCFFormatHeaderLine("AD",
+                              VCFHeaderLineCount.R,
+                              VCFHeaderLineType.Integer,
+                              "Allele depth, ref and alt on order of vcf file"),
       new VCFFormatHeaderLine("DP",
                               1,
                               VCFHeaderLineType.Integer,
@@ -206,8 +205,7 @@ object CountAlleles extends ToolCommand[Args] {
     // Removal of insertions that are not really in the cigarstring
     for (allele <- allelesInRead if allele.length > refAllele.length) {
       val refPos = for (t <- refAllele.length until allele.length)
-        yield
-          samRecord.getReferencePositionAtReadPosition(readStartPos + t + 1)
+        yield samRecord.getReferencePositionAtReadPosition(readStartPos + t + 1)
       if (refPos.exists(_ > 0)) allelesInRead -= allele
     }
 
